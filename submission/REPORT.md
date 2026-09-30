@@ -8,7 +8,7 @@
 - **MSSV:** 2A202602460
 - **Lớp:** K4-L3B
 - **Repository URL:** https://github.com/abbeyIsMe/K4-L3B-Day13-HoHoangPhuongAnh-2A202602460-Monitoring-LLMOps
-- **Commit SHA cuối:**
+- **Commit SHA cuối:** e3f3fb6c2d3b0dc7d2981c56919046ffbc84beaa
 - **Challenge ID:** day13-k4-l3b-monitoring-llmops-v1
 - **Tên project Langfuse cá nhân:** day13-k4-l3b-2A202602460
 
