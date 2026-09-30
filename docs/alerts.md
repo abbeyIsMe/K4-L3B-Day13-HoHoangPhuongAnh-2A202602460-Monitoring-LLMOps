@@ -20,41 +20,26 @@ Ví dụ dưới đây minh họa mức độ cụ thể cần có. Học viên 
 - Mitigation tạm thời: dựa trên evidence thực tế để rollback prompt, khôi phục cấu hình liên quan, tắt practice scenario hoặc giảm tải khi demo.
 - Owner: `student-<MSSV>`
 
-## Alert 1
+## Alert 1 — HighLatencyP95
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
-- Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+- Severity: warning; duy trì 5 phút; Slack `#k4-l3b-alerts`; owner `student-oncall`.
+- Điều kiện: P95 `response_sent.latency_ms` > 3000 ms trong 5 phút.
+- Ảnh hưởng: người dùng đợi lâu hơn trước khi nhận câu trả lời.
+- Kiểm tra: xác nhận P95/P99 theo time range; lọc log để lấy correlation ID chậm; mở trace tương ứng và so sánh retrieval/generation.
+- Mitigation: rollback prompt nếu generation tăng bất thường; nếu retrieval chậm, khôi phục cấu hình nguồn dữ liệu theo evidence.
 
-## Alert 2
+## Alert 2 — ElevatedErrorRate
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
-- Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+- Severity: critical; duy trì 3 phút; Slack `#k4-l3b-alerts`; owner `student-oncall`.
+- Điều kiện: tỷ lệ `request_failed / request_received` > 2% trong 3 phút.
+- Ảnh hưởng: một phần request không trả được câu trả lời.
+- Kiểm tra: xác nhận error rate và error type; lấy correlation ID từ `request_failed`; mở trace để xem span lỗi đầu tiên.
+- Mitigation: khôi phục thành phần/cấu hình lỗi đã xác định; nếu lỗi retrieval diện rộng, tạm dùng fallback theo quy trình vận hành.
 
-## Alert 3
+## Alert 3 — LowRetrievalSuccess
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
-- Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+- Severity: warning; duy trì 5 phút; Slack `#k4-l3b-alerts`; owner `student-oncall`.
+- Điều kiện: tỷ lệ `tool_success` của retrieval < 90% trong 5 phút.
+- Ảnh hưởng: câu trả lời có thể thiếu ngữ cảnh phù hợp.
+- Kiểm tra: xem panel errors/retrieval; lọc log theo `tool_name=retrieval`; mở trace và kiểm tra retrieval span.
+- Mitigation: khôi phục nguồn/config retrieval đã biết là tốt; theo dõi retrieval success trước khi đóng incident.

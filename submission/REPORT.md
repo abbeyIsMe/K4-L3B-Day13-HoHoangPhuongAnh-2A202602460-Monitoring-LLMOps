@@ -4,58 +4,58 @@
 
 ## 1. Thông tin học viên
 
-- **Họ và tên:**
-- **MSSV:**
+- **Họ và tên:** Hồ Hoàng Phương Anh
+- **MSSV:** 2A202602460
 - **Lớp:** K4-L3B
-- **Repository URL:**
+- **Repository URL:** 
 - **Commit SHA cuối:**
 - **Challenge ID:**
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-<MSSV>`
 
 ## 2. Evidence index
 
-Điền đúng đường dẫn tới evidence thực tế. Có thể đổi tên hoặc dùng nhiều ảnh nếu cần.
+Chưa có runtime evidence trong workspace; chỉ điền link sau khi tự chạy workload và chụp kết quả của project cá nhân. Không dùng ảnh placeholder để thay thế evidence.
 
 | Evidence | Đường dẫn |
 |---|---|
-| Pytest cuối | `evidence/01-pytest.png` |
-| Log validator | `evidence/02-log-validator.png` |
-| Dashboard validator | `evidence/03-dashboard-validator.png` |
-| Structured log | `evidence/04-structured-log.png` |
-| PII redaction | `evidence/05-pii-redaction.png` |
-| Trace list | `evidence/06-trace-list.png` |
-| Trace waterfall | `evidence/07-trace-waterfall.png` |
-| Trace metadata | `evidence/08-trace-metadata.png` |
-| Prompt versions | `evidence/09-prompt-versions.png` |
-| Prompt rollback | `evidence/10-prompt-rollback.png` |
-| Dashboard runtime | `evidence/11-dashboard-overview.png` |
-| Incident metric | `evidence/12-incident-metric.png` |
-| Incident log | `evidence/13-incident-log.png` |
-| Incident trace | `evidence/14-incident-trace.png` |
+| Pytest cuối | Chờ chạy ở commit cuối |
+| Log validator | Chờ chạy sau khi tạo log mới |
+| Dashboard validator | Chờ chạy |
+| Structured log | Chờ chụp log runtime đã scrub |
+| PII redaction | Chờ chụp kiểm chứng runtime |
+| Trace list | Chờ tạo trace trong project Langfuse cá nhân |
+| Trace waterfall | Chờ tạo trace trong project Langfuse cá nhân |
+| Trace metadata | Chờ tạo trace trong project Langfuse cá nhân |
+| Prompt versions | Chờ tạo prompt v1/v2 trong project cá nhân |
+| Prompt rollback | Chờ thực hiện rollback label production |
+| Dashboard runtime | Chờ dựng dashboard có dữ liệu |
+| Incident metric | Chờ challenge chính thức của Lab Coach |
+| Incident log | Chờ challenge chính thức của Lab Coach |
+| Incident trace | Chờ challenge chính thức của Lab Coach |
 
 ## 3. Kết quả kỹ thuật
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | | | |
-| `validate_dashboard.py` | | | |
-| `pytest` | | | |
-| Số traces hợp lệ | | | |
-| Số PII leak | | | |
-| Latency P95 / TTFT P95 | | | |
-| Retrieval success rate | | | |
+| `validate_logs.py` | 100/100 | Chưa đo | 83 records, 0 missing required fields, 0 missing enrichment, 40 unique correlation IDs, 0 PII leaks |
+| `validate_dashboard.py` | 6/6 panel | Chưa đo | Tất cả 6 panel trong dashboard contract đều hợp lệ |
+| `pytest` | 21 passed, 1 failed | Chưa đo | 1 test fail liên quan `RecordingLangfuseClient` và v4 Observation API |
+| Số traces hợp lệ | Chưa đo | Chưa đo | Chưa xác nhận trace trên Langfuse |
+| Số PII leak | 0 | Chưa đo | Theo `validate_logs.py` |
+| Latency P95 / TTFT P95 | Chưa đo | Chưa đo | Chưa có metric P95 |
+| Retrieval success rate | Chưa đo | Chưa đo | Chưa có metric baseline |
 
 ## 4. Logging và PII
 
-- **Cách tạo/nhận và truyền correlation ID:**
-- **Các metadata được ghi vào structured log:**
-- **Cách bảo đảm PII được scrub trước khi ghi:**
-- **Cách kiểm chứng kết quả:**
+- **Cách tạo/nhận và truyền correlation ID:** Middleware nhận `x-request-id` đúng dạng `req-<8-hex>`, nếu không hợp lệ thì sinh ID mới; bind vào structlog context và trả qua response header.
+- **Các metadata được ghi vào structured log:** `user_id_hash`, `session_id`, `feature`, `model`, `env` cùng `correlation_id`.
+- **Cách bảo đảm PII được scrub trước khi ghi:** `scrub_event` chạy trước file writer/JSON renderer và duyệt đệ quy string trong event; preview prompt/answer dùng `summarize_text`.
+- **Cách kiểm chứng kết quả:** Chưa chạy; cần gửi email/điện thoại/CCCD/thẻ mẫu qua log thử, kiểm tra JSONL không còn giá trị nguyên văn và chụp evidence.
 
 ## 5. Tracing và prompt versioning
 
 - **Cách xác nhận traces do chính tôi tạo trong project cá nhân:**
-- **Cấu trúc root/retrieval/generation observations:**
+- **Cấu trúc root/retrieval/generation observations:** Root `lab-agent-run` chứa child `retrieval` (retriever) và `llm-generation` (generation); generation cập nhật model, prompt preview đã scrub, token usage và cost.
 - **Cách nối trace với log:**
 - **Prompt name:**
 - **Version/label baseline:**
@@ -66,9 +66,9 @@
 ## 6. Dashboard, SLO và alerts
 
 - **Dashboard và sáu panel:**
-- **SLO và lý do chọn:**
-- **Cách tính error budget:**
-- **Ba alert và runbook tương ứng:**
+- **SLO và lý do chọn:** `fast_successful_requests`: 99.5% request phải thành công trong 3000 ms theo cửa sổ 28 ngày; cần đối chiếu ngưỡng latency với baseline thực tế trước khi chốt.
+- **Cách tính error budget:** 100% - 99.5% = 0.5%; với 10,000 request trong cửa sổ, tối đa 50 request không đạt điều kiện SLO.
+- **Ba alert và runbook tương ứng:** HighLatencyP95 (5 phút), ElevatedErrorRate (3 phút), LowRetrievalSuccess (5 phút); chi tiết tại `docs/alerts.md`. Thay owner `student-<MSSV>` bằng MSSV của mình trước khi nộp.
 
 > Ví dụ cách viết error budget: "SLO 99.5% trong 28 ngày nghĩa là error budget 0.5%. Nếu workload có 10,000 request thì tối đa 50 request được phép lỗi hoặc chậm hơn ngưỡng SLO."
 
